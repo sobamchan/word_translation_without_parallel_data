@@ -13,19 +13,10 @@ class Trainer(object):
         np.random.seed(0)
 
         self.args = args
-        s_vec = utils.load_word_vec(args.source_vec_file)
-        s_vocab, s_w2i, s_i2w = utils.dict2vocab(s_vec)
-        self.s_vec = s_vec
-        self.s_vocab = s_vocab
-        self.s_w2i = s_w2i
-        self.s_i2w = s_i2w
-        t_vec = utils.load_word_vec(args.target_vec_file)
-        t_vocab, t_w2i, t_i2w = utils.dict2vocab(t_vec)
-        self.t_vec = t_vec
-        self.t_vocab = t_vocab
-        self.t_w2i = t_w2i
-        self.t_i2w = t_i2w
+        self.source_vocab_n = utils.get_file_line_n(args.source_vec_file)
+        self.target_vocab_n = utils.get_file_line_n(args.target_vec_file)
 
+        print('setting models')
         netD = model.netD()
         netG = model.netG()
         if args.use_cuda:
@@ -43,27 +34,32 @@ class Trainer(object):
 
     def train(self):
         args = self.args
+        s_fpath = args.source_vec_file
+        t_fpath = args.target_vec_file
         batch_size = args.batch_size
-        s_words = np.array(list(self.s_vec.keys()))
-        t_words = np.array(list(self.t_vec.keys()))
-        if len(s_words) < len(t_words):
-            max_indx = len(s_words)
+
+        if self.source_vocab_n > self.target_vocab_n:
+            max_indx = self.target_vocab_n
         else:
-            max_indx = len(t_words)
+            max_indx = self.source_vocab_n
 
         for i_epoch in range(1, args.epoch + 1):
-            s_perm_indxes = np.random.permutation(len(s_words))
-            t_perm_indxes = np.random.permutation(len(t_words))
+            s_perm_indxes = np.random.permutation(self.source_vocab_n)
+            t_perm_indxes = np.random.permutation(self.target_vocab_n)
 
             D_G_z1_list = []
             D_G_z2_list = []
             error_D_list = []
             error_G_list = []
             for idx in range(0, max_indx, batch_size):
-                ss = s_words[s_perm_indxes[idx:idx+batch_size]]
-                ts = t_words[t_perm_indxes[idx:idx+batch_size]]
-                D_G_z1, error_D = self.train_D((ss, ts))
-                D_G_z2, error_G = self.train_G((ss, ts))
+                s_inds = s_perm_indxes[idx:idx+batch_size]
+                t_inds = t_perm_indxes[idx:idx+batch_size]
+                s_d = utils.read_file_batch_by_line_idx(s_fpath, s_inds)
+                t_d = utils.read_file_batch_by_line_idx(t_fpath, t_inds)
+
+                D_G_z1, error_D = self.train_D((s_d, t_d))
+                D_G_z2, error_G = self.train_G((s_d, t_d))
+
                 D_G_z1_list.append(D_G_z1)
                 D_G_z2_list.append(D_G_z2)
                 error_D_list.append(error_D)
@@ -75,12 +71,11 @@ class Trainer(object):
 
     def train_D(self, batch):
         args = self.args
-        ss, ts = batch
-        s_vecs_np = np.array([np.array(self.s_vec[sw]).astype(np.float)
-                              for sw in ss])
-        t_vecs_np = np.array([np.array(self.t_vec[tw]).astype(np.float)
-                              for tw in ts])
-        batch_size = len(ss)
+        s_d, t_d = batch
+        s_vecs_np = np.array(list(s_d.values()))
+        t_vecs_np = np.array(list(t_d.values()))
+
+        batch_size = len(s_d)
 
         self.netD.zero_grad()
 
@@ -113,12 +108,11 @@ class Trainer(object):
 
     def train_G(self, batch):
         args = self.args
-        ss, _ = batch
-        s_vecs_np = np.array([np.array(self.s_vec[sw]).astype(np.float)
-                              for sw in ss])
-        # t_vecs_np = np.array([np.array(self.t_vec[tw]).astype(np.float)
-        #                       for tw in ts])
-        batch_size = len(ss)
+        s_d, _ = batch
+
+        s_vecs_np = np.array(list(s_d.values()))
+
+        batch_size = len(s_d)
 
         self.netG.zero_grad()
         x = Variable(torch.from_numpy(s_vecs_np).type(torch.FloatTensor))
