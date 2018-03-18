@@ -55,24 +55,36 @@ class Trainer(object):
             s_perm_indxes = np.random.permutation(len(s_words))
             t_perm_indxes = np.random.permutation(len(t_words))
 
+            D_G_z1_list = []
+            D_G_z2_list = []
+            error_D_list = []
+            error_G_list = []
             for idx in range(0, max_indx, batch_size):
                 ss = s_words[s_perm_indxes[idx:idx+batch_size]]
                 ts = t_words[t_perm_indxes[idx:idx+batch_size]]
                 D_G_z1, error_D = self.train_D((ss, ts))
+                D_G_z2, error_G = self.train_G((ss, ts))
+                D_G_z1_list.append(D_G_z1)
+                D_G_z2_list.append(D_G_z2)
+                error_D_list.append(error_D)
+                error_G_list.append(error_G)
+            print('%d th epoch: loss d: %.4f, loss g: %.4f' %
+                  (i_epoch,
+                   np.mean(error_D_list),
+                   np.mean(error_G_list)))
 
     def train_D(self, batch):
         args = self.args
         ss, ts = batch
-
         s_vecs_np = np.array([np.array(self.s_vec[sw]).astype(np.float)
                               for sw in ss])
         t_vecs_np = np.array([np.array(self.t_vec[tw]).astype(np.float)
                               for tw in ts])
-
         batch_size = len(ss)
 
         self.netD.zero_grad()
 
+        # train with real data
         x = Variable(torch.from_numpy(t_vecs_np).type(torch.FloatTensor))
         label = Variable(torch.FloatTensor(batch_size).fill_(1))
         if args.use_cuda:
@@ -100,4 +112,25 @@ class Trainer(object):
         return D_G_z1, error_D.data[0]
 
     def train_G(self, batch):
-        pass
+        args = self.args
+        ss, _ = batch
+        s_vecs_np = np.array([np.array(self.s_vec[sw]).astype(np.float)
+                              for sw in ss])
+        # t_vecs_np = np.array([np.array(self.t_vec[tw]).astype(np.float)
+        #                       for tw in ts])
+        batch_size = len(ss)
+
+        self.netG.zero_grad()
+        x = Variable(torch.from_numpy(s_vecs_np).type(torch.FloatTensor))
+        label = Variable(torch.FloatTensor(batch_size).fill_(1))
+        if args.use_cuda:
+            x = x.cuda()
+            label = label.cuda()
+        fake = self.netG(x)
+        output = self.netD(fake)
+        error_D_fake = self.criterion(output, label)
+        error_D_fake.backward()
+        D_G_z2 = output.data.mean()
+        self.optimizer_G.step()
+
+        return D_G_z2, error_D_fake.data[0]
