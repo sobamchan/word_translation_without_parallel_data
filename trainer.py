@@ -87,7 +87,9 @@ class Trainer(object):
 
         # train with real data
         x = Variable(torch.from_numpy(t_vecs).type(torch.FloatTensor))
-        label = Variable(torch.FloatTensor(batch_size).fill_(1)).unsqueeze(1)
+        # label = Variable(torch.FloatTensor(batch_size).fill_(1)).unsqueeze(1)
+        label = utils.sample_real_smooth_label(batch_size)
+        label = Variable(torch.from_numpy(label).type(torch.FloatTensor))
         if args.use_cuda:
             x = x.cuda()
             label = label.cuda()
@@ -97,7 +99,9 @@ class Trainer(object):
 
         # train with fake data (projected source data)
         x = Variable(torch.from_numpy(s_vecs).type(torch.FloatTensor))
-        label = Variable(torch.FloatTensor(batch_size).fill_(0)).unsqueeze(1)
+        # label = Variable(torch.FloatTensor(batch_size).fill_(0)).unsqueeze(1)
+        label = utils.sample_fake_smooth_label(batch_size)
+        label = Variable(torch.from_numpy(label).type(torch.FloatTensor))
         if args.use_cuda:
             x = x.cuda()
             label = label.cuda()
@@ -119,7 +123,9 @@ class Trainer(object):
 
         self.netG.zero_grad()
         x = Variable(torch.from_numpy(s_vecs).type(torch.FloatTensor))
-        label = Variable(torch.FloatTensor(batch_size).fill_(1)).unsqueeze(1)
+        # label = Variable(torch.FloatTensor(batch_size).fill_(1)).unsqueeze(1)
+        label = utils.sample_real_smooth_label(batch_size)
+        label = Variable(torch.from_numpy(label).type(torch.FloatTensor))
         if args.use_cuda:
             x = x.cuda()
             label = label.cuda()
@@ -131,3 +137,15 @@ class Trainer(object):
         self.optimizer_G.step()
 
         return D_G_z2, error_D_fake.data[0]
+
+    def convert(self, s_vecs):
+        args = self.args
+        # batch_size = len(s_vecs)
+        self.netG.train()
+        x = Variable(torch.from_numpy(s_vecs).type(torch.FloatTensor))
+        if args.use_cuda:
+            x = x.cuda()
+            # label = label.cuda()
+        results = self.netG(x)
+
+        return results

@@ -59,3 +59,15 @@ def get_file_line_n(fpath):
         line = f.readline()
         line_n += 1
     return line_n
+
+
+def sample_real_smooth_label(batch_size):
+    labels = np.array([np.random.choice(np.arange(0.7, 1.2, 0.1))
+                       for _ in range(batch_size)])
+    return labels.reshape(batch_size, 1)
+
+
+def sample_fake_smooth_label(batch_size):
+    labels = np.array([np.random.choice(np.arange(0.0, 0.3, 0.1))
+                       for _ in range(batch_size)])
+    return labels.reshape(batch_size, 1)
