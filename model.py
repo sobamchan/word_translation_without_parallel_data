@@ -2,6 +2,15 @@
 import torch.nn as nn
 
 
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1:
+        m.weight.data.normal_(0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        m.weight.data.normal_(1.0, 0.02)
+        m.bias.data.fill_(0)
+
+
 class netD(nn.Module):
 
     def __init__(self, ngpu=1):
@@ -13,6 +22,8 @@ class netD(nn.Module):
         self.leaky_relu = nn.LeakyReLU()
         self.fc2 = nn.Linear(2048, 1)
         self.sigmoid = nn.Sigmoid()
+
+        weights_init(self)
 
     def main(self, x):
         x = self.dropout(x)
@@ -37,6 +48,8 @@ class netG(nn.Module):
         super(netG, self).__init__()
         self.ngpu = ngpu
         self.W = nn.Linear(300, 300, bias=False)
+
+        weights_init(self)
 
     def main(self, x):
         x = self.W(x)
