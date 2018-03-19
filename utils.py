@@ -1,7 +1,8 @@
 import numpy as np
+from gensim.models import KeyedVectors
 
 
-def load_word_vec(fpath):
+def load_word_vec_dict(fpath):
     f = open(fpath, 'r')
     d = {}
     line = f.readline()
@@ -17,6 +18,11 @@ def load_word_vec(fpath):
     return d
 
 
+def load_word_vec_list(fpath):
+    w2v = KeyedVectors.load_word2vec_format(fpath, binary=False)
+    return w2v.vectors
+
+
 def dict2vocab(d):
     vocab = list(d.keys())
     w2i = {}
@@ -29,13 +35,13 @@ def dict2vocab(d):
 
 def read_file_batch_by_line_idx(fpath, indexes):
     f = open(fpath, 'r')
-    line = f.readline()
+    next(f)
     line = f.readline()
     d = {}
     idx = 0
     while line:
         if idx in indexes:
-            items = line.split()
+            items = line.strip().split(' ')
             word = items[0]
             elems = items[1:]
             d[word] = np.array(elems, dtype=np.float64)

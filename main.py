@@ -10,12 +10,19 @@ def get_args():
     parser.add_argument('--lr', type=float, default=0.001)
     parser.add_argument('--beta1', type=float, default=0.5)
     parser.add_argument('--use-cuda', type=bool, default=True)
+    parser.add_argument('--ngpu', type=int, default=1)
     parser.add_argument('--source-vec-file',
                         type=str,
-                        default='./data/wiki.ja.vec.mini')
+                        default='./data/wiki.ja.vec.200k')
     parser.add_argument('--target-vec-file',
                         type=str,
-                        default='./data/wiki.en.vec.mini')
+                        default='./data/wiki.en.vec.200k')
+    # parser.add_argument('--source-vec-file-50k',
+    #                     type=str,
+    #                     default='./data/wiki.ja.vec.50k')
+    # parser.add_argument('--target-vec-file-50k',
+    #                     type=str,
+    #                     default='./data/wiki.en.vec.50k')
     return parser.parse_args()
 
 
