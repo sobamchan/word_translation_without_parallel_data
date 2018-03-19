@@ -8,12 +8,14 @@ class netD(nn.Module):
         super(netD, self).__init__()
         self.ngpu = ngpu
 
+        self.dropout = nn.Dropout(0.2)
         self.fc1 = nn.Linear(300, 2048)
         self.leaky_relu = nn.LeakyReLU()
         self.fc2 = nn.Linear(2048, 1)
         self.sigmoid = nn.Sigmoid()
 
     def main(self, x):
+        x = self.dropout(x)
         x = self.fc1(x)
         x = self.leaky_relu(x)
         x = self.fc2(x)
