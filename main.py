@@ -19,13 +19,14 @@ def get_args():
                         default='./data/wiki.en.vec.200k')
     parser.add_argument('--output-dir',
                         type=str,
-                        default='test')
+                        default='./lab/test')
     return parser.parse_args()
 
 
 def main(args):
     trainer = Trainer(args)
     trainer.train()
+    trainer.save_netG_state()
 
 
 if __name__ == '__main__':

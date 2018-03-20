@@ -156,14 +156,17 @@ class Trainer(object):
 
         return D_G_z2, error_D_fake.data[0]
 
-    def convert(self, s_vecs):
-        args = self.args
-        # batch_size = len(s_vecs)
-        self.netG.train()
-        x = Variable(torch.from_numpy(s_vecs).type(torch.FloatTensor))
-        if args.use_cuda:
-            x = x.cuda()
-            # label = label.cuda()
-        results = self.netG(x)
+    # def convert(self, s_vecs):
+    #     args = self.args
+    #     self.netG.train()
+    #     x = Variable(torch.from_numpy(s_vecs).type(torch.FloatTensor))
+    #     if args.use_cuda:
+    #         x = x.cuda()
+    #     results = self.netG(x)
+    #     return results
 
-        return results
+    def save_netG_state(self):
+        odir = self.args.output_dir
+        fpath = os.path.join(odir, 'netG_state.pth')
+        print('saving netG state to', fpath)
+        torch.save(self.netG.state_dict(), fpath)
