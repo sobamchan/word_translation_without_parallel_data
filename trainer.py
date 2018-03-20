@@ -166,7 +166,12 @@ class Trainer(object):
     #     return results
 
     def save_netG_state(self):
+        multi_gpus = self.args.multi_gpus
         odir = self.args.output_dir
         fpath = os.path.join(odir, 'netG_state.pth')
         print('saving netG state to', fpath)
-        torch.save(self.netG.state_dict(), fpath)
+        if multi_gpus:
+            state_dict = self.netG.module.state_dict()
+        else:
+            state_dict = self.netG.state_dict()
+        torch.save(state_dict, fpath)
