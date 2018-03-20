@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
@@ -5,7 +6,9 @@ import numpy as np
 import torch.optim as optim
 from tqdm import tqdm
 import utils
+import slack_utils
 import model
+import logger
 
 
 class Trainer(object):
@@ -14,16 +17,20 @@ class Trainer(object):
         np.random.seed(0)
 
         self.args = args
+
+        self.logger = logger.Logger(args.output_dir)
+
         print('load source vec')
         self.source_vecs = utils.load_word_vec_list(args.source_vec_file)
         print('load target vec')
         self.target_vecs = utils.load_word_vec_list(args.target_vec_file)
 
         print('setting models')
-        netD = model.netD(ngpu=args.ngpu)
-        netG = model.netG(ngpu=args.ngpu)
-        netD = nn.DataParallel(netD)
-        netG = nn.DataParallel(netG)
+        netD = model.netD()
+        netG = model.netG()
+        if args.multi_gpus:
+            netD = nn.DataParallel(netD)
+            netG = nn.DataParallel(netG)
         if args.use_cuda:
             netD = netD.cuda()
             netG = netG.cuda()
@@ -76,6 +83,17 @@ class Trainer(object):
                   (i_epoch,
                    np.mean(error_D_list),
                    np.mean(error_G_list)))
+
+            result_ = {'error_D': np.mean(error_D_list),
+                       'error_G': np.mean(error_G_list)}
+            self.logger.dump(result_)
+            if i_epoch % 10 == 0:
+                progress_path = os.path.join(args.output_dir,
+                                             'progress.json')
+                imgpaths = slack_utils.output_progress(progress_path,
+                                                       args.output_dir)
+                for imgpath in imgpaths:
+                    slack_utils.send_slack_img(imgpath)
 
     def train_D(self, batch):
         args = self.args

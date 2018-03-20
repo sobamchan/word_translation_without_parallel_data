@@ -13,9 +13,8 @@ def weights_init(m):
 
 class netD(nn.Module):
 
-    def __init__(self, ngpu=1):
+    def __init__(self):
         super(netD, self).__init__()
-        self.ngpu = ngpu
 
         self.dropout = nn.Dropout(0.2)
         self.fc1 = nn.Linear(300, 2048)
@@ -35,18 +34,12 @@ class netD(nn.Module):
 
     def forward(self, x):
         return self.main(x)
-        # if isinstance(x.data, torch.cuda.FloatTensor) and self.ngpu > 1:
-        #     x = nn.parallel.data_parallel(self.main, x, range(self.ngpu))
-        # else:
-        #     x = self.main(x)
-        # return x
 
 
 class netG(nn.Module):
 
-    def __init__(self, ngpu=1):
+    def __init__(self):
         super(netG, self).__init__()
-        self.ngpu = ngpu
         self.W = nn.Linear(300, 300, bias=False)
 
         weights_init(self)
@@ -57,8 +50,3 @@ class netG(nn.Module):
 
     def forward(self, x):
         return self.main(x)
-        # if isinstance(x.data, torch.cuda.FloatTensor) and self.ngpu > 1:
-        #     x = nn.parallel.data_parallel(self.main, x, range(self.ngpu))
-        # else:
-        #     x = self.main(x)
-        # return x
