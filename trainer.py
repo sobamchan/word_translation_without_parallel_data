@@ -48,20 +48,15 @@ class Trainer(object):
         args = self.args
         batch_size = args.batch_size
 
-        # if self.source_vocab_n > self.target_vocab_n:
-        #     max_indx = self.target_vocab_n
-        # else:
-        #     max_indx = self.source_vocab_n
-
         for i_epoch in range(1, args.epoch + 1):
-            s_200k_perm_indxes = np.random.permutation(200000)
+            # s_200k_perm_indxes = np.random.permutation(200000)
             s_50k_perm_indxes = np.random.permutation(50000)
             t_50k_perm_indxes = np.random.permutation(50000)
 
             D_G_z1_list = []
-            D_G_z2_list = []
+            # D_G_z2_list = []
             error_D_list = []
-            error_G_list = []
+            # error_G_list = []
             total = 50000
             for idx in tqdm(range(0, total, batch_size),
                             total=int(total/batch_size)):
@@ -71,27 +66,30 @@ class Trainer(object):
                         t_50k_perm_indxes[idx:idx+batch_size]]
                 D_G_z1, error_D = self.train_D((s_vecs, t_vecs))
 
-                s_vecs = self.source_vecs[
-                        s_200k_perm_indxes[idx:idx+batch_size]]
-                D_G_z2, error_G = self.train_G(s_vecs)
+                # s_vecs = self.source_vecs[
+                #         s_200k_perm_indxes[idx:idx+batch_size]]
+                # D_G_z2, error_G = self.train_G(s_vecs)
 
                 D_G_z1_list.append(D_G_z1)
-                D_G_z2_list.append(D_G_z2)
+                # D_G_z2_list.append(D_G_z2)
                 error_D_list.append(error_D)
-                error_G_list.append(error_G)
-            print('%d th epoch: loss d: %.4f, loss g: %.4f' %
-                  (i_epoch,
-                   np.mean(error_D_list),
-                   np.mean(error_G_list)))
+                # error_G_list.append(error_G)
+            # print('%d th epoch: loss d: %.4f, loss g: %.4f' %
+            #       (i_epoch,
+            #        np.mean(error_D_list),
+            #        np.mean(error_G_list)))
 
-            result_ = {'error_D': np.mean(error_D_list),
-                       'error_G': np.mean(error_G_list)}
+            result_ = {'epoch': i_epoch,
+                       'error_D': np.mean(error_D_list),
+                       # 'error_G': np.mean(error_G_list)}
+                       }
             self.logger.dump(result_)
             if i_epoch % 10 == 0:
                 progress_path = os.path.join(args.output_dir,
                                              'progress.json')
                 imgpaths = slack_utils.output_progress(progress_path,
-                                                       args.output_dir)
+                                                       args.output_dir,
+                                                       'fixed_generator')
                 for imgpath in imgpaths:
                     slack_utils.send_slack_img(imgpath)
 

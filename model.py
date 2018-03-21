@@ -16,7 +16,7 @@ class netD(nn.Module):
     def __init__(self):
         super(netD, self).__init__()
 
-        self.dropout = nn.Dropout(0.2)
+        self.dropout = nn.Dropout(0.1)
         self.fc1 = nn.Linear(300, 2048)
         self.leaky_relu = nn.LeakyReLU()
         self.fc2 = nn.Linear(2048, 1)
