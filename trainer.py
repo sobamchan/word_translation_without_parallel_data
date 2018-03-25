@@ -27,7 +27,8 @@ class Trainer(object):
 
         print('setting models')
         netD = model.netD()
-        netG = model.netG()
+        # netG = model.netG()
+        netG = model.complexNetG()
         if args.multi_gpus:
             netD = nn.DataParallel(netD)
             netG = nn.DataParallel(netG)

@@ -1,5 +1,6 @@
 # import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 def weights_init(m):
@@ -46,6 +47,22 @@ class netG(nn.Module):
 
     def main(self, x):
         x = self.W(x)
+        return x
+
+    def forward(self, x):
+        return self.main(x)
+
+
+class complexNetG(nn.Module):
+
+    def __init__(self):
+        super(complexNetG, self).__init__()
+        self.fc1 = nn.Linear(300, 400)
+        self.fc2 = nn.Linear(400, 300)
+
+    def main(self, x):
+        x = F.leaky_relu(self.fc1(x))
+        x = self.fc2(x)
         return x
 
     def forward(self, x):
