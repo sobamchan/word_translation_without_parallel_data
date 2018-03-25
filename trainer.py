@@ -80,7 +80,7 @@ class Trainer(object):
                        # 'error_D': np.mean(error_D_list),
                        'error_G': np.mean(error_G_list)}
             self.logger.dump(result_)
-            if i_epoch % 10 == 0:
+            if i_epoch % args.log_inter == 0:
                 progress_path = os.path.join(args.output_dir,
                                              'progress.json')
                 imgpaths = slack_utils.output_progress(progress_path,

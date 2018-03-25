@@ -20,6 +20,9 @@ def get_args():
     parser.add_argument('--output-dir',
                         type=str,
                         default='./lab/test')
+    parser.add_argument('--log-inter',
+                        type=int,
+                        default=10)
     return parser.parse_args()
 
 
