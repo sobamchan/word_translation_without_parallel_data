@@ -44,6 +44,7 @@ class Trainer(object):
                                       lr=args.lr,
                                       betas=(args.beta1, 0.999))
         self.criterion = nn.BCELoss()
+        self.prefix = os.path.basename(args.output_dir)
 
     def train(self):
         args = self.args
@@ -86,7 +87,7 @@ class Trainer(object):
                                              'progress.json')
                 imgpaths = slack_utils.output_progress(progress_path,
                                                        args.output_dir,
-                                                       'fixed_generator')
+                                                       self.prefix)
                 for imgpath in imgpaths:
                     slack_utils.send_slack_img(imgpath)
 
