@@ -1,4 +1,6 @@
 import numpy as np
+import torch
+import torch.nn as nn
 from gensim.models import KeyedVectors
 
 
@@ -71,3 +73,15 @@ def sample_fake_smooth_label(batch_size):
     labels = np.array([np.random.choice(np.arange(0.0, 0.3, 0.1))
                        for _ in range(batch_size)])
     return labels.reshape(batch_size, 1)
+
+
+def get_embeds_from_numpy(src_vecs, tgt_vecs):
+    if isinstance(src_vecs, np.ndarray):
+        src_vecs = torch.from_numpy(src_vecs)
+    if isinstance(tgt_vecs, np.ndarray):
+        tgt_vecs = torch.from_numpy(tgt_vecs)
+    src_embed = nn.Embedding(len(src_vecs), 300)
+    tgt_embed = nn.Embedding(len(tgt_vecs), 300)
+    src_embed.weight.data.copy_(src_vecs)
+    tgt_embed.weight.data.copy_(tgt_vecs)
+    return src_embed, tgt_embed
