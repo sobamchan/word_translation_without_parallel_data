@@ -35,7 +35,7 @@ class Trainer(object):
         print('setting models')
         netD = model.netD()
         netG = model.netG()
-        netG.weight.data.copy_(torch.diag(torch.ones(300)))
+        netG.W.weight.data.copy_(torch.diag(torch.ones(300)))
         if args.multi_gpus:
             netD = nn.DataParallel(netD)
             netG = nn.DataParallel(netG)
