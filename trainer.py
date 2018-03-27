@@ -1,7 +1,6 @@
 import os
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.autograd import Variable
 import numpy as np
 import torch.optim as optim
@@ -36,6 +35,7 @@ class Trainer(object):
         print('setting models')
         netD = model.netD()
         netG = model.netG()
+        netG.weight.data.copy_(torch.diag(torch.ones(300)))
         if args.multi_gpus:
             netD = nn.DataParallel(netD)
             netG = nn.DataParallel(netG)
@@ -50,7 +50,7 @@ class Trainer(object):
         self.optimizer_G = optim.Adam(self.netG.parameters(),
                                       lr=args.lr,
                                       betas=(args.beta1, 0.999))
-        # self.criterion = nn.BCELoss()
+        self.criterion = nn.BCELoss()
         self.prefix = os.path.basename(args.output_dir)
 
     def train(self):
@@ -109,7 +109,7 @@ class Trainer(object):
 
         x, y = self.get_batch_for_disc(volatile=True)
         preds = self.netD(Variable(x.data))
-        loss = F.binary_cross_entropy(preds, y)
+        loss = self.criterion(preds, y)
         self.optimizer_D.zero_grad()
         loss.backward()
         self.optimizer_D.step()
@@ -120,7 +120,7 @@ class Trainer(object):
 
         x, y = self.get_batch_for_disc(volatile=False)
         preds = self.netD(Variable(x.data))
-        loss = F.binary_cross_entropy(preds, 1 - y)
+        loss = self.criterion(preds, 1 - y)
 
         self.optimizer_G.zero_grad()
         loss.backward()
