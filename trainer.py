@@ -33,7 +33,7 @@ class Trainer(object):
             self.tgt_embed = tgt_embed
 
         print('setting models')
-        netD = model.netD()
+        netD = model.netD(self.args)
         netG = model.netG()
         netG.W.weight.data.copy_(torch.diag(torch.ones(300)))
         if args.multi_gpus:
@@ -63,13 +63,17 @@ class Trainer(object):
 
             for niter in tqdm(range(10000)):
 
-                for _ in range(5):
+                for _ in range(args.dis_step):
                     error_D = self.train_D()
                     error_D_list.append(error_D)
 
                 error_G = self.train_G()
 
                 error_G_list.append(error_G)
+
+                if niter % 500 == 0:
+                    print('error_D: ', np.mean(error_D_list))
+                    print('error_G: ', np.mean(error_G_list))
 
             result_ = {'epoch': i_epoch,
                        'error_D': np.mean(error_D_list),
@@ -87,8 +91,8 @@ class Trainer(object):
     def get_batch_for_disc(self, volatile):
         args = self.args
         batch_size = args.batch_size
-        src_ids = torch.LongTensor(batch_size).random_(200000)
-        tgt_ids = torch.LongTensor(batch_size).random_(200000)
+        src_ids = torch.LongTensor(batch_size).random_(75000)
+        tgt_ids = torch.LongTensor(batch_size).random_(75000)
         if args.use_cuda:
             src_ids = src_ids.cuda()
             tgt_ids = tgt_ids.cuda()
