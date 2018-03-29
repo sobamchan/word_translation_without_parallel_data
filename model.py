@@ -3,28 +3,20 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-def weights_init(m):
-    classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
-        m.weight.data.normal_(0.0, 0.02)
-    elif classname.find('BatchNorm') != -1:
-        m.weight.data.normal_(1.0, 0.02)
-        m.bias.data.fill_(0)
-
-
 class netD(nn.Module):
 
-    def __init__(self):
+    def __init__(self, args):
         super(netD, self).__init__()
+        self.args = args
 
-        layers = [nn.Dropout((0.1))]
+        layers = [nn.Dropout(args.dis_input_dropout)]
         for i in range(3):
             input_dim = 300 if i == 0 else 2048
             output_dim = 1 if i == 2 else 2048
             layers.append(nn.Linear(input_dim, output_dim))
             if i < 2:
                 layers.append(nn.LeakyReLU(0.2))
-                layers.append(nn.Dropout(0.1))
+                layers.append(nn.Dropout(args.dis_dropout))
         layers.append(nn.Sigmoid())
         self.layers = nn.Sequential(*layers)
 
@@ -37,8 +29,6 @@ class netG(nn.Module):
     def __init__(self):
         super(netG, self).__init__()
         self.W = nn.Linear(300, 300, bias=False)
-
-        weights_init(self)
 
     def main(self, x):
         x = self.W(x)

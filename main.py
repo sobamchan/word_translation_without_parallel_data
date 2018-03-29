@@ -10,6 +10,9 @@ def get_args():
     parser.add_argument('--lr', type=float, default=0.001)
     parser.add_argument('--beta1', type=float, default=0.5)
     parser.add_argument('--map-beta', type=float, default=0.001)
+    parser.add_argument('--dis-input-dropout', type=float, default=0.1)
+    parser.add_argument('--dis-dropout', type=float, default=0.0)
+    parser.add_argument('--dis-step', type=int, default=5)
     parser.add_argument('--use-cuda', type=bool, default=True)
     parser.add_argument('--multi-gpus', type=bool, default=True)
     parser.add_argument('--source-vec-file',
