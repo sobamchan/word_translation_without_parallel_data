@@ -1,4 +1,5 @@
 import os
+import subprocess
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
@@ -19,6 +20,10 @@ class Trainer(object):
         self.args = args
 
         self.logger = logger.Logger(args.output_dir)
+
+        current_commit_hash =\
+            subprocess.check_output(["git", "rev-parse", "HEAD"]).strip()
+        self.logger.log('current git commit hash: %s' % current_commit_hash)
 
         print('load vec')
         source_vecs = utils.load_word_vec_list(args.source_vec_file)
