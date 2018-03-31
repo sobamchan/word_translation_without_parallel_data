@@ -1,5 +1,5 @@
 import torch
-from .utils import get_nn_avg_dist
+from utils import get_nn_avg_dist
 
 
 def get_candidates(emb1, emb2, args):

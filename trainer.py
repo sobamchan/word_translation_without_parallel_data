@@ -10,6 +10,7 @@ import utils
 import slack_utils
 import model
 import logger
+from evaluator import Evaluator
 
 
 class Trainer(object):
@@ -58,6 +59,8 @@ class Trainer(object):
         self.criterion = nn.BCELoss()
         self.prefix = os.path.basename(args.output_dir)
 
+        self.evaluator = Evaluator(self)
+
     def train(self):
         args = self.args
 
@@ -79,6 +82,8 @@ class Trainer(object):
                 if niter % 500 == 0:
                     print('error_D: ', np.mean(error_D_list))
                     print('error_G: ', np.mean(error_G_list))
+                    print('dist cosine mean: ',
+                          self.evaluator.dist_mean_cosine())
 
             result_ = {'epoch': i_epoch,
                        'error_D': np.mean(error_D_list),

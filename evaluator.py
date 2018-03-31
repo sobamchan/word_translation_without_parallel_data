@@ -1,5 +1,5 @@
 from copy import deepcopy
-from .dictionary_utils import get_candidates, build_dictionary
+from dictionary_utils import get_candidates, build_dictionary
 
 
 class Evaluator(object):
