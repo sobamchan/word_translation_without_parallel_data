@@ -85,3 +85,18 @@ def get_embeds_from_numpy(src_vecs, tgt_vecs):
     src_embed.weight.data.copy_(src_vecs)
     tgt_embed.weight.data.copy_(tgt_vecs)
     return src_embed, tgt_embed
+
+
+def get_nn_avg_dist(emb, query, knn):
+    bs = 1024
+    all_distances = []
+    emb = emb.transpose(0, 1).contiguous()
+    for i in range(0, query.shape[0], bs):
+        distances = query[i:i + bs].mm(emb)
+        best_distances, _ = distances.topk(knn,
+                                           dim=1,
+                                           largest=True,
+                                           sorted=True)
+        all_distances.append(best_distances.mean(1).cpu())
+    all_distances = torch.cat(all_distances)
+    return all_distances.cpu()
