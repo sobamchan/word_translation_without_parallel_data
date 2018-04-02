@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import torch
 import torch.nn as nn
@@ -21,8 +22,11 @@ def load_word_vec_dict(fpath):
 
 
 def load_word_vec_list(fpath):
-    w2v = KeyedVectors.load_word2vec_format(fpath, binary=False)
-    return w2v.vectors
+    if os.path.basename(fpath).endswith('.npy'):
+        vec = np.load(fpath)
+    else:
+        vec = KeyedVectors.load_word2vec_format(fpath, binary=False).vectors
+    return vec
 
 
 def dict2vocab(d):
