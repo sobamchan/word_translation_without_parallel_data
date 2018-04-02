@@ -1,4 +1,5 @@
 import argparse
+from distutils.util import strtobool
 import torch
 from trainer import Trainer
 
@@ -13,20 +14,22 @@ def get_args():
     parser.add_argument('--dis-input-dropout', type=float, default=0.1)
     parser.add_argument('--dis-dropout', type=float, default=0.0)
     parser.add_argument('--dis-step', type=int, default=5)
-    parser.add_argument('--use-cuda', type=bool, default=True)
-    parser.add_argument('--multi-gpus', type=bool, default=True)
+    parser.add_argument('--use-criteria', type=strtobool, default='1')
+    parser.add_argument('--use-cuda', type=strtobool, default='1')
+    parser.add_argument('--multi-gpu', type=strtobool, default='1')
     parser.add_argument('--source-vec-file',
                         type=str,
-                        default='./data/wiki.en.vec.200k')
+                        default='./data/wiki.en.vec.200k.npy')
     parser.add_argument('--target-vec-file',
                         type=str,
-                        default='./data/wiki.es.vec.200k')
+                        default='./data/wiki.es.vec.200k.npy')
     parser.add_argument('--output-dir',
                         type=str,
                         default='./lab/test')
     parser.add_argument('--log-inter',
                         type=int,
                         default=10)
+    parser.add_argument('--slack-output', type=bool, default=True)
     return parser.parse_args()
 
 
