@@ -16,7 +16,7 @@ from evaluator import Evaluator
 class Trainer(object):
 
     def __init__(self, args):
-        np.random.seed(0)
+        np.random.seed(args.seed)
 
         self.args = args
 
