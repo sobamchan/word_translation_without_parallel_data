@@ -10,6 +10,7 @@ class Evaluator(object):
         self.netG = trainer.netG
         self.netD = trainer.netD
         self.args = trainer.args
+        self.logger = trainer.logger
 
     def dist_mean_cosine(self):
         args = self.args
@@ -37,7 +38,7 @@ class Evaluator(object):
                                     s2t_candidates,
                                     t2s_candidates)
 
-            if dico in None:
+            if dico is None:
                 mean_cosine = -1e9
             else:
                 mean_cosine = (src_emb[dico[:dico_max_size, 0]] *
