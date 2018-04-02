@@ -42,7 +42,7 @@ class Trainer(object):
         netD = model.netD(self.args)
         netG = model.netG()
         netG.W.weight.data.copy_(torch.diag(torch.ones(300)))
-        if args.multi_gpus:
+        if args.multi_gpu:
             netD = nn.DataParallel(netD)
             netG = nn.DataParallel(netG)
         if args.use_cuda:
@@ -82,8 +82,9 @@ class Trainer(object):
                 if niter % 500 == 0:
                     print('error_D: ', np.mean(error_D_list))
                     print('error_G: ', np.mean(error_G_list))
-                    print('dist cosine mean: ',
-                          self.evaluator.dist_mean_cosine())
+                    if args.use_criteria:
+                        print('dist cosine mean: ',
+                              self.evaluator.dist_mean_cosine())
 
             result_ = {'epoch': i_epoch,
                        'error_D': np.mean(error_D_list),
@@ -120,6 +121,7 @@ class Trainer(object):
 
     def train_D(self):
         self.netD.train()
+        self.netG.eval()
 
         x, y = self.get_batch_for_disc(volatile=True)
         preds = self.netD(Variable(x.data))
@@ -130,10 +132,11 @@ class Trainer(object):
         return loss.data[0]
 
     def train_G(self):
-        self.netG.eval()
+        self.netD.eval()
+        self.netG.train()
 
         x, y = self.get_batch_for_disc(volatile=False)
-        preds = self.netD(Variable(x.data))
+        preds = self.netD(x)
         loss = self.criterion(preds, 1 - y)
 
         self.optimizer_G.zero_grad()
@@ -149,11 +152,11 @@ class Trainer(object):
             W.copy_((1 + beta) * W - beta * W.mm(W.transpose(0, 1).mm(W)))
 
     def save_netG_state(self):
-        multi_gpus = self.args.multi_gpus
+        multi_gpu = self.arg.multi_gpus
         odir = self.args.output_dir
         fpath = os.path.join(odir, 'netG_state.pth')
         print('saving netG state to', fpath)
-        if multi_gpus:
+        if multi_gpu:
             state_dict = self.netG.module.state_dict()
         else:
             state_dict = self.netG.state_dict()
