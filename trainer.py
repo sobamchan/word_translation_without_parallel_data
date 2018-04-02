@@ -142,6 +142,7 @@ class Trainer(object):
         self.optimizer_G.zero_grad()
         loss.backward()
         self.optimizer_G.step()
+        self.orthogonalize()
 
         return loss.data[0]
 
