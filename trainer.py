@@ -11,6 +11,7 @@ import slack_utils
 import model
 import logger
 from evaluator import Evaluator
+from dictionary_utils import build_dictionary
 
 
 class Trainer(object):
@@ -146,6 +147,13 @@ class Trainer(object):
 
         return loss.data[0]
 
+    def build_dictionary(self):
+        src_emb = self.netG(self.src_embed.weight).data
+        tgt_emb = self.tgt_embed.weight.data
+        src_emb = src_emb / src_emb.norm(2, 1, keepdim=True).expand_as(src_emb)
+        tgt_emb = tgt_emb / tgt_emb.norm(2, 1, keepdim=True).expand_as(tgt_emb)
+        self.dico = build_dictionary(src_emb, tgt_emb, self.args)
+
     def orthogonalize(self):
         if self.args.map_beta > 0:
             W = self.netG.weight.data
@@ -156,7 +164,7 @@ class Trainer(object):
         multi_gpu = self.arg.multi_gpus
         odir = self.args.output_dir
         fpath = os.path.join(odir, 'netG_state.pth')
-        print('saving netG state to', fpath)
+        self.logger.log('saving netG state to', fpath)
         if multi_gpu:
             state_dict = self.netG.module.state_dict()
         else:
