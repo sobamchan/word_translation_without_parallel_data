@@ -9,6 +9,9 @@ class Evaluator(object):
         self.tgt_embed = trainer.tgt_embed
         self.netG = trainer.netG
         self.netD = trainer.netD
+        self.src_dico = trainer.src_dico
+        self.tgt_dico = trainer.tgt_dico
+        self.logger = trainer.logger
         self.args = trainer.args
         self.logger = trainer.logger
 
@@ -45,3 +48,15 @@ class Evaluator(object):
                                tgt_emb[dico[:dico_max_size, 1]]).sum(1).mean()
 
             return mean_cosine
+
+    def word_translation(self):
+        src_emb = self.netG(self.src_embed.weight).data
+        tgt_emb = self.tgt_embed.data
+
+        for method in ['nn', 'csls_knn_10']:
+            results = get_word_translation_accuracy(
+                    self.src_dico.lang, self.src_dico.w2i, src_emb,
+                    self.tgt_dico.lang, self.tgt_dico.w2i, tgt_emb,
+                    method=method
+                    )
+            self.logger.log('word translation accuracy: ', results)

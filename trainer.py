@@ -35,6 +35,8 @@ class Trainer(object):
 
         self.src_dico = source_dico
         self.tgt_dico = target_dico
+        args.src_dico = source_dico
+        args.tgt_dico = target_dico
 
         src_embed, tgt_embed =\
             utils.get_embeds_from_numpy(source_vecs, target_vecs)
