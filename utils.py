@@ -1,32 +1,28 @@
 import os
+import json
 import numpy as np
 import torch
 import torch.nn as nn
 from gensim.models import KeyedVectors
+from dictionary import Dictionary
 
 
-def load_word_vec_dict(fpath):
-    f = open(fpath, 'r')
-    d = {}
-    line = f.readline()
-    line = f.readline()
-    while line:
-        items = line.split()
-        word = items[0]
-        elems = items[1:]
-        # d[word] = np.array(elems, dtype=np.float64)
-        d[word] = elems
-        line = f.readline()
-    f.close()
-    return d
+def load_word_vec_list(fpath, lang):
+    wlistpath = os.path.join(os.path.split(fpath), '.wordlist')
+    with open(wlistpath, 'r') as f:
+        wlist = json.load(f)
+    w2i = {}
+    for w in wlist:
+        if w not in w2i.keys():
+            w2i[w] = len(w2i)
+    i2w = {v: k for k, v in w2i.items()}
+    dico = Dictionary(i2w, w2i, lang)
 
-
-def load_word_vec_list(fpath):
-    if os.path.basename(fpath).endswith('.npy'):
+    if fpath.endswith('.npy'):
         vec = np.load(fpath)
     else:
         vec = KeyedVectors.load_word2vec_format(fpath, binary=False).vectors
-    return vec
+    return vec, dico
 
 
 def dict2vocab(d):

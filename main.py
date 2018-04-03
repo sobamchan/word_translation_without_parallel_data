@@ -24,9 +24,15 @@ def get_args():
     parser.add_argument('--source-vec-file',
                         type=str,
                         default='./data/wiki.en.vec.200k.npy')
+    parser.add_argument('--source-lang',
+                        type=str,
+                        default='en')
     parser.add_argument('--target-vec-file',
                         type=str,
                         default='./data/wiki.es.vec.200k.npy')
+    parser.add_argument('--target-lang',
+                        type=str,
+                        default='es')
     parser.add_argument('--output-dir',
                         type=str,
                         default='./lab/test')

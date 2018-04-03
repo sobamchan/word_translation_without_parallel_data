@@ -28,8 +28,14 @@ class Trainer(object):
         self.logger.log('current git commit hash: %s' % current_commit_hash)
 
         print('load vec')
-        source_vecs = utils.load_word_vec_list(args.source_vec_file)
-        target_vecs = utils.load_word_vec_list(args.target_vec_file)
+        source_vecs, source_dico =\
+            utils.load_word_vec_list(args.source_vec_file, args.source_lang)
+        target_vecs, target_dico =\
+            utils.load_word_vec_list(args.target_vec_file, args.target_lang)
+
+        self.src_dico = source_dico
+        self.tgt_dico = target_dico
+
         src_embed, tgt_embed =\
             utils.get_embeds_from_numpy(source_vecs, target_vecs)
         if args.use_cuda:
