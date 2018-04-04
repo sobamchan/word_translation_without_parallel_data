@@ -20,7 +20,10 @@ def get_candidates(emb1, emb2, args):
             all_scores.append(best_scores.cpu())
             all_targets.append(best_targets.cpu())
 
+        # all_scores: for each emb1 vocab, contains top-2 "close" word's scores
         all_scores = torch.cat(all_scores, 0)
+        # all_targets:
+        #   for each emb1 vocab, contains top-2 "close" word's indices
         all_targets = torch.cat(all_targets, 0)
 
     if args.dico_method.startswith('csls_knn_'):
@@ -37,8 +40,8 @@ def get_candidates(emb1, emb2, args):
                              .transpose(0, 1)).transpose(0, 1)
             scores.mul_(2)
 
-            scores.sub_(ave_dist1[i:min(n_src, i + bs)]
-                        [:, None] + ave_dist2[None, :])
+            scores.sub_(ave_dist1[i:min(n_src, i + bs)][:, None]
+                        + ave_dist2[None, :])
 
             best_scores, best_targets =\
                 scores.topk(2, dim=1, largest=True, sorted=True)
