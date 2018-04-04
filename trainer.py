@@ -108,8 +108,9 @@ class Trainer(object):
                 imgpaths = slack_utils.output_progress(progress_path,
                                                        args.output_dir,
                                                        self.prefix)
-                for imgpath in imgpaths:
-                    slack_utils.send_slack_img(imgpath)
+                if args.slack_output:
+                    for imgpath in imgpaths:
+                        slack_utils.send_slack_img(imgpath)
 
     def get_batch_for_disc(self, volatile):
         args = self.args
