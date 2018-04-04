@@ -33,7 +33,7 @@ def get_word_translation_accuracy(lang1, w2i1, emb1, lang2,
                                   w2i2, emb2, method, args):
     logger = args.logger
     path = './data/%s-%s.5000-6500.txt' % (lang1, lang2)
-    dico = load_dictionary(path, w2i1, w2i2)
+    dico = load_dictionary(path, w2i1, w2i2, args)
     dico = dico.cuda() if emb1.is_cuda else dico
 
     emb1 = emb1 / emb1.norm(2, 1, keepdim=True).expand_as(emb1)
@@ -67,6 +67,6 @@ def get_word_translation_accuracy(lang1, w2i1, emb1, lang2,
         precision_at_k = 100 * np.mean(list(matching.values()))
         logger.log('%i source words - %s - Precision at k = %i: %f' %
                    (len(matching), method, k, precision_at_k))
-        results.append(('precision_at_%i' % k, precision_at_k))
+        results.append({'precision_at_%i' % k: precision_at_k})
 
     return results

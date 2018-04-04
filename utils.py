@@ -1,5 +1,4 @@
 import os
-import json
 import numpy as np
 import torch
 import torch.nn as nn
@@ -8,9 +7,9 @@ from dictionary import Dictionary
 
 
 def load_word_vec_list(fpath, lang):
-    wlistpath = os.path.join(os.path.split(fpath), '.wordlist')
+    wlistpath = os.path.splitext(fpath)[0] + '.wordlist'
     with open(wlistpath, 'r') as f:
-        wlist = json.load(f)
+        wlist = [l.strip() for l in f.readlines()]
     w2i = {}
     for w in wlist:
         if w not in w2i.keys():
@@ -99,4 +98,4 @@ def get_nn_avg_dist(emb, query, knn):
                                            sorted=True)
         all_distances.append(best_distances.mean(1).cpu())
     all_distances = torch.cat(all_distances)
-    return all_distances.cpu()
+    return all_distances.numpy()

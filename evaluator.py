@@ -1,5 +1,6 @@
 from copy import deepcopy
 from dictionary_utils import get_candidates, build_dictionary
+from word_translation import get_word_translation_accuracy
 
 
 class Evaluator(object):
@@ -51,12 +52,14 @@ class Evaluator(object):
 
     def word_translation(self):
         src_emb = self.netG(self.src_embed.weight).data
-        tgt_emb = self.tgt_embed.data
+        tgt_emb = self.tgt_embed.weight.data
 
         for method in ['nn', 'csls_knn_10']:
             results = get_word_translation_accuracy(
                     self.src_dico.lang, self.src_dico.w2i, src_emb,
                     self.tgt_dico.lang, self.tgt_dico.w2i, tgt_emb,
-                    method=method
+                    method=method,
+                    args=self.args
                     )
-            self.logger.log('word translation accuracy: ', results)
+            for r in results:
+                self.logger.dump(r)

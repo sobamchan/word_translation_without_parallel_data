@@ -22,6 +22,7 @@ class Trainer(object):
         self.args = args
 
         self.logger = logger.Logger(args.output_dir)
+        self.args.logger = self.logger
 
         current_commit_hash =\
             subprocess.check_output(["git", "rev-parse", "HEAD"]).strip()
@@ -94,6 +95,8 @@ class Trainer(object):
                     if args.use_criteria:
                         print('dist cosine mean: ',
                               self.evaluator.dist_mean_cosine())
+                        print('caluclating word translation accuracy...')
+                        self.evaluator.word_translation()
 
             result_ = {'epoch': i_epoch,
                        'error_D': np.mean(error_D_list),
@@ -164,7 +167,7 @@ class Trainer(object):
 
     def orthogonalize(self):
         if self.args.map_beta > 0:
-            W = self.netG.weight.data
+            W = self.netG.W.weight.data
             beta = self.args.map_beta
             W.copy_((1 + beta) * W - beta * W.mm(W.transpose(0, 1).mm(W)))
 
